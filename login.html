@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in — BongLy TradeAI</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="auth-page">
+
+  <aside class="auth-aside">
+    <a href="index.html" class="logo"><span class="logo-mark">◈</span>Bong<span>Ly</span> TradeAI</a>
+    <div>
+      <span class="pill"><span class="dot"></span> AI engine live</span>
+      <h2>Signals, charts &amp; news — delivered to your phone.</h2>
+      <p>Join thousands of traders using BongLy's AI to catch moves early with clear, confidence-scored signals.</p>
+      <ul class="auth-points">
+        <li><span class="ic">🤖</span> AI BUY / SELL signals with confidence scores</li>
+        <li><span class="ic">📊</span> Live candlestick charts on 14 markets</li>
+        <li><span class="ic">📰</span> Sentiment-tagged market news</li>
+        <li><span class="ic">📱</span> Instant push, sound &amp; vibrate alerts</li>
+      </ul>
+    </div>
+    <p class="tiny muted">© <span data-year></span> BongLy TradeAI · Not investment advice</p>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-box">
+      <!-- SIGN IN -->
+      <div id="pane-login">
+        <h1>Welcome back</h1>
+        <p>Sign in to your BongLy dashboard.</p>
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label for="li-email">Email address</label>
+            <input id="li-email" type="email" placeholder="you@email.com" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="li-pass">Password</label>
+            <input id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+          <div class="flex between items-center" style="margin-bottom:18px">
+            <label class="flex items-center gap-8 tiny muted" style="cursor:pointer"><input type="checkbox" id="remember" checked> Remember me</label>
+            <a href="#" class="tiny" style="color:var(--blue);font-weight:600">Forgot password?</a>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Sign in →</button>
+        </form>
+        <div class="divider">OR</div>
+        <p class="auth-switch">New to BongLy? <a href="#signup" id="goSignup">Create an account</a></p>
+        <div class="demo-note">
+          <b>Demo accounts</b><br>
+          Admin · <span class="mono">admin@bongly.io / admin123</span><br>
+          Trader · <span class="mono">user@bongly.io / user123</span>
+        </div>
+      </div>
+
+      <!-- SIGN UP -->
+      <div id="pane-signup" class="hidden">
+        <h1>Create your account</h1>
+        <p>Start your 14-day free trial — no card required.</p>
+        <form id="signupForm" novalidate>
+          <div class="field-row">
+            <div class="field"><label for="su-name">Full name</label><input id="su-name" type="text" placeholder="Alex Rivera" required></div>
+            <div class="field"><label for="su-plan">Plan</label><select id="su-plan"><option>Starter</option><option selected>Pro</option><option>Elite</option></select></div>
+          </div>
+          <div class="field"><label for="su-email">Email address</label><input id="su-email" type="email" placeholder="you@email.com" required></div>
+          <div class="field-row">
+            <div class="field"><label for="su-pass">Password</label><input id="su-pass" type="password" placeholder="Min. 6 characters" required></div>
+            <div class="field"><label for="su-pass2">Confirm password</label><input id="su-pass2" type="password" placeholder="Repeat password" required></div>
+          </div>
+          <label class="flex items-center gap-8 tiny muted" style="margin-bottom:18px;cursor:pointer;align-items:flex-start">
+            <input type="checkbox" id="su-terms" style="margin-top:3px"> I agree to the Terms &amp; understand trading involves risk.
+          </label>
+          <button class="btn btn-primary btn-block" type="submit">Create account →</button>
+        </form>
+        <div class="divider">OR</div>
+        <p class="auth-switch">Already have an account? <a href="#" id="goLogin">Sign in</a></p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/data.js"></script>
+<script>
+(function () {
+  "use strict";
+  const BL = window.BL;
+  document.querySelector("[data-year]").textContent = new Date().getFullYear();
+
+  const paneLogin = document.getElementById("pane-login");
+  const paneSignup = document.getElementById("pane-signup");
+  const show = (which) => {
+    const signup = which === "signup";
+    paneLogin.classList.toggle("hidden", signup);
+    paneSignup.classList.toggle("hidden", !signup);
+    if (signup) history.replaceState(null, "", "#signup");
+  };
+  document.getElementById("goSignup").addEventListener("click", (e) => { e.preventDefault(); show("signup"); });
+  document.getElementById("goLogin").addEventListener("click", (e) => { e.preventDefault(); show("login"); });
+  if (location.hash === "#signup") show("signup");
+
+  // Already signed in?
+  if (BL.getSession()) {
+    const u = BL.getUserById(BL.getSession().uid);
+    if (u) location.href = u.role === "admin" ? "admin.html" : "dashboard.html";
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = document.getElementById("li-email").value.trim();
+    const pass = document.getElementById("li-pass").value;
+    if (!email || !pass) return BL.toast("Missing details", "Enter your email and password to continue.", "warn");
+    const user = BL.findUser(email, pass);
+    if (!user) return BL.toast("Sign in failed", "No account matches those credentials.", "sell");
+    if (user.status === "suspended") return BL.toast("Account suspended", "Contact an administrator to restore access.", "warn");
+    BL.setSession({ uid: user.id, at: Date.now() });
+    BL.toast("Welcome back, " + user.name.split(" ")[0], "Signed in successfully.", "buy");
+    setTimeout(() => (location.href = user.role === "admin" ? "admin.html" : "dashboard.html"), 500);
+  });
+
+  document.getElementById("signupForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("su-name").value.trim();
+    const email = document.getElementById("su-email").value.trim();
+    const plan = document.getElementById("su-plan").value;
+    const p1 = document.getElementById("su-pass").value;
+    const p2 = document.getElementById("su-pass2").value;
+    if (!name || !email || !p1) return BL.toast("Missing details", "Fill in every field to create your account.", "warn");
+    if (p1.length < 6) return BL.toast("Weak password", "Use at least 6 characters.", "warn");
+    if (p1 !== p2) return BL.toast("Passwords differ", "Make sure both passwords match.", "warn");
+    if (!document.getElementById("su-terms").checked) return BL.toast("Accept terms", "Please agree to the Terms to continue.", "warn");
+    const users = BL.getUsers();
+    if (users.some((u) => u.email.toLowerCase() === email.toLowerCase()))
+      return BL.toast("Email taken", "An account with that email already exists.", "warn");
+
+    const user = {
+      id: "u_" + Date.now().toString(36),
+      name, email, pass: p1, role: "user", plan,
+      status: "active", balance: 10000,
+      created: BL.dateStr(Date.now()), alerts: 0,
+    };
+    users.push(user);
+    BL.saveUsers(users);
+    BL.addLog("User signup", name + " (" + email + ") created a " + plan + " account");
+    BL.setSession({ uid: user.id, at: Date.now() });
+    BL.toast("Account created 🎉", "Welcome to BongLy, " + name.split(" ")[0] + "!", "buy");
+    setTimeout(() => (location.href = "dashboard.html"), 600);
+  });
+})();
+</script>
+</body>
+</html>

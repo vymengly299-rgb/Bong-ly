@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BongLy TradeAI — AI Trade Signals, Charts, News &amp; Phone Alerts</title>
+<meta name="description" content="BongLy TradeAI — AI-powered trading signals, live charts, market news and instant phone alerts for crypto, forex, gold and stocks.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">◈</span>Bong<span>Ly</span> TradeAI</a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#preview">Platform</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm">Sign in</a>
+      <a href="login.html#signup" class="btn btn-primary btn-sm">Start free trial</a>
+      <button class="nav-burger" aria-label="Menu">☰</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+  <div class="container hero-inner">
+    <div>
+      <span class="pill"><span class="dot"></span> AI engine live · 14 markets scanned</span>
+      <h1>Trade smarter with <span class="grad-text">AI signals</span> straight to your phone</h1>
+      <p class="lead">BongLy reads price action, momentum and market news around the clock — then sends you clear BUY / SELL signals, live charts and instant alerts on your phone before the move happens.</p>
+      <div class="hero-cta">
+        <a href="login.html#signup" class="btn btn-primary">Create free account →</a>
+        <a href="dashboard.html" class="btn btn-ghost">▶ View live dashboard</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><b class="grad-text">72.4%</b><span>Signal win rate</span></div>
+        <div class="hero-stat"><b class="grad-text">&lt;3s</b><span>Alert latency</span></div>
+        <div class="hero-stat"><b class="grad-text">14</b><span>Markets covered</span></div>
+        <div class="hero-stat"><b class="grad-text">24/7</b><span>AI scanning</span></div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="float-card f1"><span>🔔</span><div><b style="color:var(--green)">BUY BTC/USDT</b><br><span class="tiny muted">confidence 91%</span></div></div>
+      <div class="float-card f2"><span>📱</span><div><b>Phone push sent</b><br><span class="tiny muted">2.1s ago</span></div></div>
+      <div class="card hero-panel">
+        <div class="hero-panel-head">
+          <div class="panel-title"><span class="ic">₿</span> BTC / USDT · 1H</div>
+          <span class="badge badge-green"><span class="dot"></span>Live</span>
+        </div>
+        <div class="hero-panel-body">
+          <div class="price-head">
+            <div class="price-now" id="heroPrice">67,432.50</div>
+            <div class="badge badge-green">▲ 1.84%</div>
+          </div>
+          <div class="hero-chart-wrap"><canvas id="heroChart"></canvas></div>
+          <div class="hero-signal">
+            <div class="hero-signal-icon">🤖</div>
+            <div><b>AI Signal: STRONG BUY · 91% confidence</b><p>RSI 34.2 recovering · MACD bullish cross · volume +38%</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TICKER ===================== -->
+<div class="ticker-wrap"><div class="container"><div class="ticker"></div></div></div>
+
+<!-- ===================== FEATURES ===================== -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="pill">✦ Platform</span>
+      <h2 class="section-title">Everything a trader needs, in one AI workspace</h2>
+      <p class="section-sub">Charts, signals, news and execution — engineered together so you never miss a setup again.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature" data-reveal><div class="feature-icon">🤖</div><h3>AI signal engine</h3><p>A multi-factor model scores RSI, MACD, EMA trend, momentum, volume and news sentiment into a full trade plan — direction, entry zone, stop loss, three take-profit levels and risk : reward.</p></div>
+      <div class="feature" data-reveal><div class="feature-icon">📊</div><h3>Real-time charts</h3><p>Institutional-grade candlestick charts with EMA overlays, volume profile, crosshair readouts and multiple timeframes from 1m to 1d.</p></div>
+      <div class="feature" data-reveal><div class="feature-icon">📰</div><h3>Market news feed</h3><p>Curated, sentiment-tagged headlines for every symbol you trade, filtered by bullish / bearish impact so you know what's moving the tape.</p></div>
+      <div class="feature" data-reveal><div class="feature-icon">📱</div><h3>Instant phone alerts</h3><p>Push notifications, sound and vibration the second a signal hits your confidence threshold — even when the tab is in the background.</p></div>
+      <div class="feature" data-reveal><div class="feature-icon">⚡</div><h3>One-click trading</h3><p>Open market or limit positions directly from the signal card, track live P&amp;L, and close with a single tap. Paper or live, your choice.</p></div>
+      <div class="feature" data-reveal><div class="feature-icon">🛡️</div><h3>Admin &amp; user control</h3><p>A full admin dashboard to create, suspend and manage users, monitor signal performance and review the platform activity log.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section class="section" id="how" style="background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="pill">◎ How it works</span>
+      <h2 class="section-title">From market noise to a clear signal in three steps</h2>
+    </div>
+    <div class="steps">
+      <div class="step" data-reveal><h3>AI scans the market</h3><p>Our engine continuously analyses 14 markets across price, volume and news sentiment, scoring every setup on a 0–100 scale.</p></div>
+      <div class="step" data-reveal><h3>Signal hits your phone</h3><p>When confidence clears your threshold, you get an instant push alert with the symbol, direction, entry and target.</p></div>
+      <div class="step" data-reveal><h3>You execute &amp; track</h3><p>Take the trade in one click, then monitor your positions, P&amp;L and win rate from the dashboard in real time.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PLATFORM PREVIEW ===================== -->
+<section class="section" id="preview">
+  <div class="container">
+    <div class="section-head" data-reveal style="margin-bottom:34px">
+      <span class="pill">▣ The platform</span>
+      <h2 class="section-title">A dashboard built for fast decisions</h2>
+      <p class="section-sub">Live chart, AI verdict, sentiment-tagged news, open positions and the alert centre — all on one screen, fully responsive on phone.</p>
+    </div>
+    <div class="card" data-reveal style="padding:14px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">
+        <div style="padding:18px;border-radius:12px;background:var(--bg);border:1px solid var(--line)">
+          <div class="tiny muted" style="text-transform:uppercase;letter-spacing:.7px;font-weight:700">AI Signal</div>
+          <div style="font-size:26px;font-weight:800;color:var(--green);margin-top:6px">STRONG BUY</div>
+          <div class="tiny muted">ETH/USDT · 1H · 88% confidence</div>
+          <div class="tiny mono" style="margin-top:10px;line-height:1.8">
+            Entry <b class="up">3,512 – 3,524</b><br>
+            Stop <b class="down">3,431</b> · TP <b class="up">3,668 / 3,742</b><br>
+            <span class="muted">Risk : reward</span> <b>1 : 1.7</b>
+          </div>
+        </div>
+        <div style="padding:18px;border-radius:12px;background:var(--bg);border:1px solid var(--line)">
+          <div class="tiny muted" style="text-transform:uppercase;letter-spacing:.7px;font-weight:700">Open positions</div>
+          <div style="font-size:26px;font-weight:800;margin-top:6px" class="mono">4</div>
+          <div class="tiny up">▲ +$1,284.60 unrealised</div>
+        </div>
+        <div style="padding:18px;border-radius:12px;background:var(--bg);border:1px solid var(--line)">
+          <div class="tiny muted" style="text-transform:uppercase;letter-spacing:.7px;font-weight:700">Win rate (30d)</div>
+          <div style="font-size:26px;font-weight:800;margin-top:6px" class="mono">72.4%</div>
+          <div class="tiny muted">118 closed signals</div>
+        </div>
+        <div style="padding:18px;border-radius:12px;background:var(--bg);border:1px solid var(--line)">
+          <div class="tiny muted" style="text-transform:uppercase;letter-spacing:.7px;font-weight:700">Phone alerts</div>
+          <div style="font-size:26px;font-weight:800;margin-top:6px" class="mono">ON</div>
+          <div class="tiny muted">push · sound · vibrate</div>
+        </div>
+      </div>
+    </div>
+    <div class="center" style="margin-top:26px" data-reveal>
+      <a href="dashboard.html" class="btn btn-primary">Open the live dashboard →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PRICING ===================== -->
+<section class="section" id="pricing" style="background:var(--bg-2);border-top:1px solid var(--line)">
+  <div class="container">
+    <div class="section-head center" style="margin:0 auto 48px" data-reveal>
+      <span class="pill">❖ Pricing</span>
+      <h2 class="section-title">Simple plans, serious edge</h2>
+      <p class="section-sub" style="margin:14px auto 0">Start free for 14 days. Cancel any time.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="plan" data-reveal>
+        <h3>Starter</h3>
+        <div class="price">$0<small>/mo</small></div>
+        <p class="tiny muted">Paper trading &amp; learning</p>
+        <ul><li>3 AI signals per day</li><li>Crypto &amp; forex charts</li><li>Delayed news feed</li><li>In-app alerts</li><li>1 watchlist</li></ul>
+        <a href="login.html#signup" class="btn btn-ghost">Start free</a>
+      </div>
+      <div class="plan popular" data-reveal>
+        <h3>Pro</h3>
+        <div class="price">$39<small>/mo</small></div>
+        <p class="tiny muted">For active traders</p>
+        <ul><li>Unlimited AI signals</li><li>All 14 markets &amp; timeframes</li><li>Real-time news + sentiment</li><li>Phone push, sound &amp; vibrate alerts</li><li>One-click trade execution</li><li>Portfolio &amp; P&amp;L tracking</li></ul>
+        <a href="login.html#signup" class="btn btn-primary">Get Pro</a>
+      </div>
+      <div class="plan" data-reveal>
+        <h3>Elite</h3>
+        <div class="price">$99<small>/mo</small></div>
+        <p class="tiny muted">For desks &amp; pros</p>
+        <ul><li>Everything in Pro</li><li>Priority signal latency</li><li>API &amp; webhook alerts</li><li>Custom indicator models</li><li>5 sub-accounts</li><li>Dedicated support</li></ul>
+        <a href="login.html#signup" class="btn btn-ghost">Go Elite</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FAQ ===================== -->
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="pill">? FAQ</span>
+      <h2 class="section-title">Questions, answered</h2>
+    </div>
+    <div class="faq">
+      <div class="faq-item" data-reveal><button class="faq-q">How does the AI generate a signal? <i>+</i></button><div class="faq-a"><p>The engine scores six factors — RSI, MACD, EMA trend cross, 10-candle momentum, relative volume and news sentiment — and blends them into a 0–100 score. 53–62 is a BUY, 63+ a STRONG BUY, and mirrored on the downside. The confidence figure reflects how strongly the factors agree.</p></div></div>
+      <div class="faq-item" data-reveal><button class="faq-q">Do phone alerts work when the tab is closed? <i>+</i></button><div class="faq-a"><p>Yes — once you allow browser notifications, signals are delivered as system push notifications on desktop and mobile, with an optional sound and vibration pattern. On Elite, signals can also be pushed to Telegram or your own webhook.</p></div></div>
+      <div class="faq-item" data-reveal><button class="faq-q">Which markets are covered? <i>+</i></button><div class="faq-a"><p>Crypto (BTC, ETH, SOL), forex majors and crosses (EUR/USD, GBP/JPY), commodities (Gold, WTI crude) and US equities (AAPL, NVDA, TSLA) — with more added every month.</p></div></div>
+      <div class="faq-item" data-reveal><button class="faq-q">Is this financial advice? <i>+</i></button><div class="faq-a"><p>No. BongLy is a research and execution tool. Signals are model output, not investment advice, and trading carries risk of loss. Always manage your own risk.</p></div></div>
+      <div class="faq-item" data-reveal><button class="faq-q">What can the admin dashboard do? <i>+</i></button><div class="faq-a"><p>Admins can create, edit, suspend and delete user accounts, assign plans and roles, monitor platform statistics (users, alerts, win rate) and review a full activity log of admin actions.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA ===================== -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2>Your next trade starts with a signal</h2>
+      <p>Join BongLy TradeAI and get AI signals, live charts and phone alerts in one place.</p>
+      <div class="hero-cta">
+        <a href="login.html#signup" class="btn btn-primary">Create free account</a>
+        <a href="login.html" class="btn btn-ghost">Sign in</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <a href="index.html" class="logo"><span class="logo-mark">◈</span>Bong<span>Ly</span> TradeAI</a>
+        <p>AI-powered trade signals, live charts, market news and instant phone alerts for modern traders.</p>
+        <div class="socials"><a href="#" aria-label="X">𝕏</a><a href="#" aria-label="Telegram">✈</a><a href="#" aria-label="Discord">◈</a><a href="#" aria-label="YouTube">▶</a></div>
+      </div>
+      <div><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="dashboard.html">Dashboard</a></li><li><a href="admin.html">Admin</a></li></ul></div>
+      <div><h4>Markets</h4><ul><li><a href="#">Crypto</a></li><li><a href="#">Forex</a></li><li><a href="#">Commodities</a></li><li><a href="#">Stocks</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#faq">FAQ</a></li><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span data-year></span> BongLy TradeAI. All rights reserved.</span>
+      <span>Not investment advice · Trading involves risk</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/landing.js"></script>
+</body>
+</html>

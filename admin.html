@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — BongLy TradeAI</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><span class="logo-mark">◈</span>Bong<span style="color:var(--blue)">Ly</span> Admin</div>
+    <div class="side-label">Management</div>
+    <a href="#sec-overview" class="side-link active"><span class="ic">▦</span> Overview</a>
+    <a href="#sec-users" class="side-link"><span class="ic">👥</span> Users</a>
+    <a href="#sec-create" class="side-link"><span class="ic">➕</span> Create user</a>
+    <a href="#sec-perf" class="side-link"><span class="ic">🤖</span> Signal performance</a>
+    <a href="#sec-plans" class="side-link"><span class="ic">💳</span> Subscriptions</a>
+    <a href="#sec-logs" class="side-link"><span class="ic">🧾</span> Activity log</a>
+    <div class="side-label">Platform</div>
+    <a href="dashboard.html" class="side-link"><span class="ic">📈</span> My dashboard</a>
+    <a href="index.html" class="side-link"><span class="ic">🌐</span> View website</a>
+    <div class="side-foot">
+      <div class="flex gap-12 items-center">
+        <div class="avatar" id="sideAvatar">A</div>
+        <div style="min-width:0"><b style="font-size:13px;display:block" id="sideName">Admin</b><span class="tiny muted">Administrator</span></div>
+      </div>
+      <button class="btn btn-ghost btn-sm btn-block mt-16" id="logoutBtn">Sign out</button>
+    </div>
+  </aside>
+  <div class="side-scrim" id="scrim"></div>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" aria-label="Menu">☰</button>
+      <div class="search"><span class="ic">🔍</span><input type="text" id="adminSearch" placeholder="Search users by name, email or plan"></div>
+      <div class="grow"></div>
+      <span class="badge badge-violet">🛡️ Admin mode</span>
+      <div class="user-chip">
+        <div class="avatar" id="topAvatar">A</div>
+        <div class="meta"><b id="topName">Admin</b><span id="topEmail">admin@bongly.io</span></div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <div class="page-head" id="sec-overview">
+        <div>
+          <h1>Admin overview</h1>
+          <p>Platform performance, users and AI signal activity · <span id="clockNow"></span></p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-ghost btn-sm" id="exportBtn">⬇ Export users (JSON)</button>
+          <button class="btn btn-primary btn-sm" id="newUserBtn">➕ Create user</button>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stat-grid auto">
+        <div class="stat"><span class="ic">👥</span><span>Total users</span><b id="statUsers">0</b><small class="up" id="statUsersSub">+0 this month</small></div>
+        <div class="stat"><span class="ic">✅</span><span>Active accounts</span><b id="statActive">0</b><small class="muted" id="statSusp">0 suspended</small></div>
+        <div class="stat"><span class="ic">🔔</span><span>Alerts delivered</span><b id="statAlerts">0</b><small class="muted">push · sound · vibrate</small></div>
+        <div class="stat"><span class="ic">💰</span><span>Platform MRR</span><b id="statMrr">$0</b><small class="up">recurring revenue</small></div>
+        <div class="stat"><span class="ic">🤖</span><span>AI signals</span><b id="statSignals">0</b><small class="muted" id="statSignalsSub">0 live</small></div>
+        <div class="stat"><span class="ic">🎯</span><span>Signal win rate</span><b id="statSigWin">—</b><small class="muted" id="statSigWinSub">no closed signals yet</small></div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="dash-col">
+
+          <!-- USERS TABLE -->
+          <section class="card" id="sec-users">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">👥</span> Users</div>
+              <div class="flex gap-8">
+                <div class="seg" id="roleFilter">
+                  <button data-r="all" class="active">All</button>
+                  <button data-r="admin">Admins</button>
+                  <button data-r="user">Traders</button>
+                </div>
+                <select id="statusFilter" class="btn btn-ghost btn-sm" style="padding:7px 10px">
+                  <option value="all">Any status</option>
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-wrap" id="usersTable"></div>
+          </section>
+
+          <!-- CREATE USER -->
+          <section class="card" id="sec-create">
+            <div class="panel-head"><div class="panel-title"><span class="ic">➕</span> Create a new user</div></div>
+            <div class="panel-body">
+              <form id="createUserForm" novalidate>
+                <div class="field-row">
+                  <div class="field"><label>Full name</label><input type="text" id="cu-name" placeholder="Jane Doe" required></div>
+                  <div class="field"><label>Email address</label><input type="email" id="cu-email" placeholder="jane@email.com" required></div>
+                </div>
+                <div class="field-row">
+                  <div class="field"><label>Password</label><input type="text" id="cu-pass" placeholder="Min. 6 characters" required></div>
+                  <div class="field"><label>Confirm password</label><input type="text" id="cu-pass2" placeholder="Repeat password" required></div>
+                </div>
+                <div class="field-row">
+                  <div class="field"><label>Role</label><select id="cu-role"><option value="user">Trader</option><option value="admin">Administrator</option></select></div>
+                  <div class="field"><label>Plan</label><select id="cu-plan"><option>Starter</option><option selected>Pro</option><option>Elite</option></select></div>
+                </div>
+                <div class="field-row">
+                  <div class="field"><label>Starting balance (USD)</label><input type="number" id="cu-balance" value="10000" min="0" step="100"></div>
+                  <div class="field"><label>Status</label><select id="cu-status"><option value="active">Active</option><option value="suspended">Suspended</option></select></div>
+                </div>
+                <div class="flex gap-8 mt-16" style="flex-wrap:wrap">
+                  <button type="submit" class="btn btn-primary">➕ Create user</button>
+                  <button type="button" class="btn btn-ghost" id="genPassBtn">🎲 Generate password</button>
+                  <button type="reset" class="btn btn-ghost">Reset</button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <!-- SIGNAL PERFORMANCE -->
+          <section class="card" id="sec-perf">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">🤖</span> AI signal performance</div>
+              <span class="tiny muted">entry · stop · 3 targets · R:R tracked live</span>
+            </div>
+            <div class="table-wrap" id="perfTable"></div>
+          </section>
+
+          <!-- PLANS -->
+          <section class="card" id="sec-plans">
+            <div class="panel-head"><div class="panel-title"><span class="ic">💳</span> Subscription breakdown</div></div>
+            <div class="table-wrap" id="plansTable"></div>
+          </section>
+        </div>
+
+        <div class="dash-col">
+          <!-- GROWTH CHART -->
+          <section class="card">
+            <div class="panel-head"><div class="panel-title"><span class="ic">📈</span> New users · last 7 months</div></div>
+            <div class="panel-body">
+              <div style="height:190px"><canvas id="growthChart" style="width:100%;height:100%"></canvas></div>
+              <div class="stat-grid mt-16" style="grid-template-columns:1fr 1fr">
+                <div class="stat" style="padding:13px 15px"><span>Retention</span><b style="font-size:20px">91%</b></div>
+                <div class="stat" style="padding:13px 15px"><span>Churn</span><b style="font-size:20px">2.1%</b></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ACTIVITY LOG -->
+          <section class="card" id="sec-logs">
+            <div class="panel-head"><div class="panel-title"><span class="ic">🧾</span> Activity log</div><button class="btn btn-ghost btn-sm" id="clearLogs">Clear</button></div>
+            <div class="panel-body"><div class="alert-log" id="logList" style="max-height:340px"></div></div>
+          </section>
+
+          <!-- SYSTEM -->
+          <section class="card">
+            <div class="panel-head"><div class="panel-title"><span class="ic">🖥️</span> System status</div></div>
+            <div class="panel-body">
+              <div class="toggle-row"><div class="txt"><b>AI signal engine</b><span>14 markets · 24/7 scan</span></div><span class="status-dot on">operational</span></div>
+              <div class="toggle-row"><div class="txt"><b>Push delivery</b><span>avg. latency 2.1s</span></div><span class="status-dot on">operational</span></div>
+              <div class="toggle-row"><div class="txt"><b>News feed</b><span>Reuters, Bloomberg, CoinDesk</span></div><span class="status-dot on">operational</span></div>
+              <div class="toggle-row"><div class="txt"><b>Chart streaming</b><span>WebSocket cluster eu-west-1</span></div><span class="status-dot on">operational</span></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <nav class="mobile-nav">
+    <a href="#sec-overview" class="active"><span class="ic">▦</span>Home</a>
+    <a href="#sec-users"><span class="ic">👥</span>Users</a>
+    <a href="#sec-create"><span class="ic">➕</span>Create</a>
+    <a href="#sec-plans"><span class="ic">💳</span>Plans</a>
+    <a href="#sec-logs"><span class="ic">🧾</span>Logs</a>
+  </nav>
+</div>
+
+<!-- ===================== EDIT USER MODAL ===================== -->
+<div class="modal-backdrop" id="editModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Edit user</h3><button class="icon-btn" id="closeModal">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Full name</label><input type="text" id="ed-name"></div>
+      <div class="field"><label>Email</label><input type="email" id="ed-email"></div>
+      <div class="field"><label>Password</label><input type="text" id="ed-pass"></div>
+      <div class="field-row">
+        <div class="field"><label>Role</label><select id="ed-role"><option value="user">Trader</option><option value="admin">Administrator</option></select></div>
+        <div class="field"><label>Plan</label><select id="ed-plan"><option>Starter</option><option>Pro</option><option>Elite</option></select></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Balance (USD)</label><input type="number" id="ed-balance" step="100"></div>
+        <div class="field"><label>Status</label><select id="ed-status"><option value="active">Active</option><option value="suspended">Suspended</option></select></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="cancelModal">Cancel</button>
+      <button class="btn btn-primary" id="saveUserBtn">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
