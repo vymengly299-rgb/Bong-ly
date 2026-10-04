@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — BongLy TradeAI</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><span class="logo-mark">◈</span>Bong<span style="color:var(--blue)">Ly</span></div>
+    <div class="side-label">Trading</div>
+    <a href="#sec-overview" class="side-link active"><span class="ic">▦</span> Overview</a>
+    <a href="#sec-signal" class="side-link"><span class="ic">🤖</span> AI Signals</a>
+    <a href="#sec-chart" class="side-link"><span class="ic">📈</span> Chart</a>
+    <a href="#sec-trade" class="side-link"><span class="ic">⚡</span> Trade</a>
+    <a href="#sec-news" class="side-link"><span class="ic">📰</span> News</a>
+    <div class="side-label">Account</div>
+    <a href="#sec-alerts" class="side-link"><span class="ic">🔔</span> Phone Alerts <span class="tag" id="alertBadge">ON</span></a>
+    <a href="#sec-settings" class="side-link"><span class="ic">⚙️</span> Settings</a>
+    <a href="admin.html" class="side-link hidden" id="adminLink"><span class="ic">🛡️</span> Admin panel</a>
+    <div class="side-foot">
+      <div class="flex gap-12 items-center">
+        <div class="avatar" id="sideAvatar">A</div>
+        <div style="min-width:0"><b style="font-size:13px;display:block" id="sideName">Trader</b><span class="tiny muted" id="sidePlan">Pro plan</span></div>
+      </div>
+      <button class="btn btn-ghost btn-sm btn-block mt-16" id="logoutBtn">Sign out</button>
+    </div>
+  </aside>
+  <div class="side-scrim" id="scrim"></div>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" aria-label="Menu">☰</button>
+      <div class="search">
+        <span class="ic">🔍</span>
+        <input type="text" id="globalSearch" placeholder="Search markets (BTC, ETH, XAU, NVDA…)">
+      </div>
+      <div class="grow"></div>
+      <button class="icon-btn" id="bellBtn" aria-label="Alerts"><span>🔔</span><span class="count" id="bellCount">0</span></button>
+      <button class="btn btn-ghost btn-sm hidden" id="pushBtn">🔔 Enable phone alerts</button>
+      <div class="user-chip">
+        <div class="avatar" id="topAvatar">A</div>
+        <div class="meta"><b id="topName">Trader</b><span id="topEmail">user@bongly.io</span></div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- OVERVIEW -->
+      <div class="page-head" id="sec-overview">
+        <div>
+          <h1 id="greeting">Good day, Trader 👋</h1>
+          <p id="subLine">AI engine scanning 14 markets · <span id="clockNow"></span></p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-ghost btn-sm" id="analyzeBtn2">🤖 Run AI analysis</button>
+          <button class="btn btn-primary btn-sm" id="testAlertBtn">📱 Test phone alert</button>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat"><span class="ic">💰</span><span>Account balance</span><b id="statBalance">$0.00</b><small class="up" id="statBalanceChg">+0.00%</small></div>
+        <div class="stat"><span class="ic">📊</span><span>Unrealised P&amp;L</span><b id="statPnl">$0.00</b><small class="muted" id="statPnlSub">across 0 positions</small></div>
+        <div class="stat"><span class="ic">🎯</span><span>AI win rate</span><b>72.4%</b><small class="up">▲ 118 signals / 30d</small></div>
+        <div class="stat"><span class="ic">🔔</span><span>Alerts sent</span><b id="statAlerts">0</b><small class="muted">push + sound + vibrate</small></div>
+      </div>
+
+      <div class="dash-grid">
+        <!-- LEFT COLUMN -->
+        <div class="dash-col">
+
+          <!-- CHART -->
+          <section class="card" id="sec-chart">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">📈</span> Live chart</div>
+              <div class="flex gap-8 items-center" style="flex-wrap:wrap">
+                <select id="symbolSelect" class="btn btn-ghost btn-sm" style="padding:7px 10px"></select>
+                <div class="seg" id="tfSeg">
+                  <button data-tf="15m">15m</button>
+                  <button data-tf="1H" class="active">1H</button>
+                  <button data-tf="4H">4H</button>
+                  <button data-tf="1D">1D</button>
+                </div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="price-head">
+                <div class="price-now" id="chartPrice">—</div>
+                <div id="chartChange"></div>
+                <div class="grow"></div>
+                <div class="price-meta">
+                  <div>24h high<b id="stat24h">—</b></div>
+                  <div>24h low<b id="stat24l">—</b></div>
+                  <div>24h volume<b id="stat24v">—</b></div>
+                </div>
+              </div>
+              <div class="chart-box">
+                <canvas id="mainChart" style="width:100%;height:100%"></canvas>
+                <div class="chart-tip" id="chartTip"></div>
+              </div>
+              <div class="flex gap-8 mt-16" style="flex-wrap:wrap">
+                <span class="badge badge-muted">EMA 21</span>
+                <span class="badge badge-muted">Volume profile</span>
+                <span class="badge badge-muted">Crosshair readout</span>
+                <span class="badge badge-blue" id="chartUpdated">updated</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- AI SIGNAL -->
+          <section class="card ai-panel" id="sec-signal">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">🤖</span> AI signal engine</div>
+              <button class="btn btn-primary btn-sm" id="analyzeBtn">🤖 Analyse <span id="analyzeSymbol">BTC/USDT</span></button>
+            </div>
+            <div class="panel-body">
+              <div class="ai-verdict hold" id="verdictBox">
+                <div class="ai-orb" id="aiOrb">🤖</div>
+                <div class="grow">
+                  <b id="verdictAction">HOLD</b>
+                  <p id="verdictNote">Run an analysis to generate a signal.</p>
+                </div>
+                <div class="center">
+                  <div class="tiny muted">confidence</div>
+                  <b class="mono" style="font-size:22px" id="confNum">—</b>
+                </div>
+              </div>
+              <div class="conf-bar"><div id="confFill"></div></div>
+              <div class="ind-list" id="indList"></div>
+              <div class="flex gap-8 mt-16" style="flex-wrap:wrap">
+                <button class="btn btn-buy btn-sm" id="takeSignalBtn">⚡ Take this signal</button>
+                <button class="btn btn-ghost btn-sm" id="alertOnSignalBtn">🔔 Alert me on this symbol</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- TRADE -->
+          <section class="card" id="sec-trade">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">⚡</span> Trade</div>
+              <span class="badge badge-amber">Paper trading</span>
+            </div>
+            <div class="panel-body">
+              <div class="trade-tabs">
+                <button id="buyTab" class="active-buy">BUY / LONG</button>
+                <button id="sellTab">SELL / SHORT</button>
+              </div>
+              <div class="field">
+                <label>Symbol</label>
+                <select id="tradeSymbol"></select>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Quantity</label>
+                  <input type="number" id="qty" value="0.5" min="0.0001" step="0.0001">
+                </div>
+                <div class="field">
+                  <label>Leverage</label>
+                  <select id="leverage">
+                    <option>1x</option><option>2x</option><option>5x</option><option selected>10x</option><option>20x</option>
+                  </select>
+                </div>
+              </div>
+              <div class="amount-row">
+                <button data-pct="25">25%</button><button data-pct="50">50%</button>
+                <button data-pct="75">75%</button><button data-pct="100">Max</button>
+              </div>
+              <div class="order-summary mt-16">
+                <div><span class="muted">Order type</span><b id="sumType">Market · Buy</b></div>
+                <div><span class="muted">Est. price</span><b id="sumPrice">—</b></div>
+                <div><span class="muted">Order value</span><b id="sumValue">—</b></div>
+                <div><span class="muted">Margin required</span><b id="sumMargin">—</b></div>
+              </div>
+              <button class="btn btn-buy btn-block" id="placeOrderBtn">Place buy order</button>
+            </div>
+          </section>
+
+          <!-- POSITIONS -->
+          <section class="card">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">📂</span> Open positions</div>
+              <span class="tiny muted" id="posCount">0 open</span>
+            </div>
+            <div class="table-wrap" id="posTableWrap"></div>
+          </section>
+
+          <!-- SIGNAL HISTORY -->
+          <section class="card">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">🕘</span> Signal history</div>
+              <span class="tiny muted">latest 8</span>
+            </div>
+            <div class="table-wrap" id="historyTable"></div>
+          </section>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="dash-col">
+
+          <!-- PHONE ALERTS -->
+          <section class="card" id="sec-alerts">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">📱</span> Phone alerts</div>
+              <span class="badge badge-green" id="pushStatus">enabled</span>
+            </div>
+            <div class="panel-body">
+              <div class="toggle-row">
+                <div class="txt"><b>Push notifications</b><span>System alerts on phone &amp; desktop</span></div>
+                <label class="switch"><input type="checkbox" id="tgPush"><span class="track"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="txt"><b>Sound</b><span>Beep on every signal</span></div>
+                <label class="switch"><input type="checkbox" id="tgSound"><span class="track"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="txt"><b>Vibration</b><span>Haptic pattern on mobile</span></div>
+                <label class="switch"><input type="checkbox" id="tgVib"><span class="track"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="txt"><b>SMS backup</b><span>Text if push fails <span class="badge badge-amber">Elite</span></span></div>
+                <label class="switch"><input type="checkbox" id="tgSms"><span class="track"></span></label>
+              </div>
+              <div class="mt-16">
+                <div class="flex between" style="margin-bottom:8px">
+                  <label class="tiny muted" style="font-weight:600">Minimum confidence to alert</label>
+                  <b class="mono tiny" id="confLabel">78%</b>
+                </div>
+                <input type="range" id="confRange" min="50" max="97" value="78" style="width:100%;accent-color:var(--blue)">
+              </div>
+              <div class="field mt-16">
+                <label>Phone number for SMS backup</label>
+                <input type="tel" id="phoneNum" placeholder="+1 555 000 1234">
+              </div>
+              <button class="btn btn-outline btn-block mt-16" id="enablePushBtn">🔔 Allow browser notifications</button>
+              <button class="btn btn-ghost btn-block mt-16" id="testAlertBtn2">Send test alert</button>
+            </div>
+          </section>
+
+          <!-- NEWS -->
+          <section class="card" id="sec-news">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">📰</span> Market news</div>
+              <div class="seg" id="newsFilter">
+                <button data-f="all" class="active">All</button>
+                <button data-f="pos">Bull</button>
+                <button data-f="neg">Bear</button>
+              </div>
+            </div>
+            <div class="panel-body"><div class="news-list" id="newsList"></div></div>
+          </section>
+
+          <!-- ALERT LOG -->
+          <section class="card">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">🔔</span> Alert centre</div>
+              <button class="btn btn-ghost btn-sm" id="clearAlerts">Clear</button>
+            </div>
+            <div class="panel-body"><div class="alert-log" id="alertLog"></div></div>
+          </section>
+
+          <!-- SETTINGS -->
+          <section class="card" id="sec-settings">
+            <div class="panel-head"><div class="panel-title"><span class="ic">⚙️</span> Settings</div></div>
+            <div class="panel-body">
+              <div class="field"><label>Display name</label><input type="text" id="setName"></div>
+              <div class="field"><label>Email</label><input type="email" id="setEmail" disabled></div>
+              <div class="field"><label>Default order size</label><input type="number" id="setQty" value="0.5" step="0.0001"></div>
+              <button class="btn btn-primary btn-block" id="saveSettingsBtn">Save changes</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-nav">
+    <a href="#sec-overview" class="active"><span class="ic">▦</span>Home</a>
+    <a href="#sec-signal"><span class="ic">🤖</span>Signals</a>
+    <a href="#sec-chart"><span class="ic">📈</span>Chart</a>
+    <a href="#sec-trade"><span class="ic">⚡</span>Trade</a>
+    <a href="#sec-alerts"><span class="ic">🔔</span>Alerts</a>
+  </nav>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
