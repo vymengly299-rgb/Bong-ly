@@ -458,6 +458,23 @@ tbody tr:last-child td { border-bottom: none; }
 .alert-item b { font-size: 12.5px; display: block; }
 .alert-item p { font-size: 11.5px; color: var(--muted-2); }
 
+.stat-grid.auto { grid-template-columns: repeat(auto-fit, minmax(198px, 1fr)); }
+/* trade-plan levels grid (signal structure) */
+.levels-grid {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 16px;
+}
+.level {
+  padding: 11px 12px; border-radius: var(--radius-sm); background: var(--bg);
+  border: 1px solid var(--line-soft); display: grid; gap: 4px;
+}
+.level b { font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
+.level.stop { border-color: rgba(240, 97, 109, 0.3); background: rgba(240, 97, 109, 0.06); }
+.level.rr { border-color: rgba(79, 140, 255, 0.35); background: rgba(79, 140, 255, 0.08); }
+.level.rr b { color: #9dc0ff; font-size: 16px; }
+.sig-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+@media (max-width: 1080px) { .levels-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .levels-grid { grid-template-columns: repeat(2, 1fr); } }
+
 /* toasts */
 .toast-stack { position: fixed; top: 18px; right: 18px; z-index: 9999; display: grid; gap: 10px; width: min(330px, calc(100vw - 36px)); }
 .toast {

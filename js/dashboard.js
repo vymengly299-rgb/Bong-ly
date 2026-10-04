@@ -47,6 +47,11 @@
     const n = Math.max(40, Math.round(110 / TF_SCALE[timeframe]));
     return all.slice(-n);
   }
+  function priceMap() {
+    const m = {};
+    Object.keys(seriesMap).forEach((k) => (m[k] = seriesMap[k][seriesMap[k].length - 1].c));
+    return m;
+  }
   const dec = (sym) => (BL.MARKETS.find((m) => m.sym === sym).price < 10 ? 5 : 2);
   const priceNow = (sym) => seriesMap[sym][seriesMap[sym].length - 1].c;
 
@@ -125,14 +130,16 @@
     renderChart();
     renderPositions();
     renderOrderSummary();
+    BL.resolveSignals(priceMap());
+    renderBoard();
+    renderSignalStats();
   }, 1400);
 
   setInterval(() => { $("#clockNow").textContent = new Date().toLocaleTimeString("en-GB"); }, 1000);
   $("#clockNow").textContent = new Date().toLocaleTimeString("en-GB");
 
-  /* ---------------- AI signal engine ---------------- */
+  /* ---------------- AI signal engine (structured trade plan) ---------------- */
   let currentSignal = null;
-  const history = JSON.parse(localStorage.getItem("bongly_history") || "[]");
 
   function renderSignal(sig, animate) {
     currentSignal = sig;
@@ -144,7 +151,24 @@
     $("#verdictNote").textContent = sig.note;
     $("#confNum").textContent = sig.confidence + "%";
     $("#analyzeSymbol").textContent = sig.symbol;
+    $("#sigModel").textContent = sig.model || "BongLy-AI v2.4";
+    $("#sigTf").textContent = sig.tf;
+    $("#sigStrength").textContent = sig.strength + " conviction";
+    $("#sigStrength").className = "badge " + (sig.strength === "strong" ? "badge-green" : sig.strength === "moderate" ? "badge-blue" : "badge-muted");
+    $("#sigScore").textContent = "score " + sig.score + "/100";
+    const st = BL.STATUS_META[sig.status] || BL.STATUS_META.watching;
+    $("#sigStatus").textContent = st.icon + " " + st.label;
+    $("#sigStatus").className = "badge " + st.cls;
     requestAnimationFrame(() => ($("#confFill").style.width = sig.confidence + "%"));
+
+    const d = dec(sig.symbol);
+    $("#lvEntry").textContent = sig.dir === 0 ? "—" : `${BL.fmt(sig.entryLow, d)} – ${BL.fmt(sig.entryHigh, d)}`;
+    $("#lvStop").textContent = sig.stop == null ? "—" : BL.fmt(sig.stop, d);
+    $("#lvT1").textContent = sig.targets[0] != null ? BL.fmt(sig.targets[0], d) : "—";
+    $("#lvT2").textContent = sig.targets[1] != null ? BL.fmt(sig.targets[1], d) : "—";
+    $("#lvT3").textContent = sig.targets[2] != null ? BL.fmt(sig.targets[2], d) : "—";
+    $("#lvRr").textContent = sig.rr ? "1 : " + sig.rr : "—";
+
     $("#indList").innerHTML = sig.indicators
       .map(
         (i) => `<div class="ind-row">
@@ -164,17 +188,17 @@
     orb.textContent = "⏳";
     $("#verdictNote").textContent = "Scanning price action, momentum and news sentiment…";
     setTimeout(() => {
-      const sig = BL.analyze(seriesMap[symbol], symbol);
+      const sig = BL.buildSignal(symbol, seriesMap[symbol], timeframe, me.id);
+      BL.addSignal(sig);
       renderSignal(sig, true);
       orb.classList.remove("thinking");
       orb.textContent = sig.action.includes("BUY") ? "📈" : sig.action.includes("SELL") ? "📉" : "🤖";
-      history.unshift({ ...sig, at: Date.now() });
-      if (history.length > 40) history.pop();
-      localStorage.setItem("bongly_history", JSON.stringify(history));
-      renderHistory();
-      const s = BL.getSettings();
-      if (sig.confidence >= s.minConf) BL.firePhoneAlert(sig);
-      else BL.toast("Analysis complete", `${sig.action} ${sig.symbol} at ${sig.confidence}% — below your ${s.minConf}% alert threshold.`, "info");
+      renderBoard();
+      renderSignalStats();
+      const st = BL.getSettings();
+      if (sig.confidence >= st.minConf) BL.firePhoneAlert(sig);
+      else BL.toast("Analysis complete", `${sig.action} ${sig.symbol} at ${sig.confidence}% — below your ${st.minConf}% alert threshold.`, "info");
+      renderAlerts();
     }, animate ? 900 : 0);
   }
 
@@ -197,35 +221,77 @@
 
   $("#alertOnSignalBtn").addEventListener("click", () => BL.askPushPermission());
 
+  /* ---------------- signal board + auto signal loop ---------------- */
+  let boardFilter = "live";
+
+  function renderBoard() {
+    const all = BL.getSignals().filter((x) => x.uid === me.id);
+    const live = (x) => x.status === "active" || x.status === "tp1" || x.status === "watching";
+    const rows = (boardFilter === "live" ? all.filter(live) : boardFilter === "all" ? all : all.filter((x) => x.status === boardFilter)).slice(0, 12);
+    const wrap = $("#boardTable");
+    if (!rows.length) {
+      wrap.innerHTML = `<div class="empty"><div class="ic">🗂️</div>No signals here yet — run an AI analysis to build a trade plan.</div>`;
+      return;
+    }
+    wrap.innerHTML = `<table><thead><tr>
+        <th>Symbol</th><th>TF</th><th>Signal</th><th>Conviction</th><th>Entry</th><th>Stop</th><th>TP1 / TP2 / TP3</th><th>R:R</th><th>Conf.</th><th>Status</th><th>P&L</th><th>Age</th>
+      </tr></thead><tbody>
+      ${rows.map((g) => {
+        const d = dec(g.symbol);
+        const st = BL.STATUS_META[g.status] || BL.STATUS_META.watching;
+        const buy = g.action.includes("BUY");
+        const pnlCls = (g.pnl || 0) >= 0 ? "up" : "down";
+        return `<tr>
+          <td><div class="pair-cell"><span class="pair-ico">${g.symbol.split("/")[0].slice(0, 4)}</span><b>${g.symbol}</b></div></td>
+          <td class="tiny muted">${g.tf}</td>
+          <td><span class="badge ${buy ? "badge-green" : g.action.includes("SELL") ? "badge-red" : "badge-amber"}">${g.action}</span></td>
+          <td class="tiny muted">${g.strength}</td>
+          <td class="mono tiny">${g.entryLow != null ? BL.fmt(g.entryLow, d) + " – " + BL.fmt(g.entryHigh, d) : "—"}</td>
+          <td class="mono tiny down">${g.stop != null ? BL.fmt(g.stop, d) : "—"}</td>
+          <td class="mono tiny">${g.targets.length ? g.targets.map((t) => BL.fmt(t, d)).join(" / ") : "—"}</td>
+          <td class="mono tiny">${g.rr ? "1:" + g.rr : "—"}</td>
+          <td><div class="flex items-center gap-8"><div style="width:44px;height:5px;border-radius:99px;background:var(--bg);overflow:hidden;border:1px solid var(--line-soft)"><div style="width:${g.confidence}%;height:100%;background:var(--grad)"></div></div><b class="mono tiny">${g.confidence}%</b></div></td>
+          <td><span class="badge ${st.cls}">${st.icon} ${st.label}</span></td>
+          <td class="mono tiny ${pnlCls}">${g.pnl ? BL.pct(g.pnl) : "—"}</td>
+          <td class="tiny muted">${BL.timeAgo(g.createdAt)}</td>
+        </tr>`;
+      }).join("")}
+      </tbody></table>`;
+  }
+
+  function renderSignalStats() {
+    const st = BL.signalStats(me.id);
+    const wr = $("#statWinRate");
+    wr.textContent = st.winRate == null ? "—" : st.winRate + "%";
+    wr.className = st.winRate == null ? "" : st.winRate >= 50 ? "up" : "down";
+    $("#statWinSub").textContent = st.resolved
+      ? `${st.won}W / ${st.lost}L of ${st.resolved} closed · ${st.active} live`
+      : `${st.active} live · tracking outcomes`;
+  }
+
+  $$("#boardFilter button").forEach((b) =>
+    b.addEventListener("click", () => {
+      $$("#boardFilter button").forEach((x) => x.classList.remove("active"));
+      b.classList.add("active");
+      boardFilter = b.dataset.f;
+      renderBoard();
+    })
+  );
+
   /* auto signal loop — this is what triggers phone alerts */
   setInterval(() => {
     const sym = BL.MARKETS[Math.floor(Math.random() * BL.MARKETS.length)].sym;
-    const sig = BL.analyze(seriesMap[sym], sym);
-    const s = BL.getSettings();
-    if (sig.confidence >= s.minConf) {
+    const sig = BL.buildSignal(sym, seriesMap[sym], timeframe, me.id);
+    BL.addSignal(sig);
+    const st = BL.getSettings();
+    if (sig.confidence >= st.minConf) {
       BL.firePhoneAlert(sig);
       renderAlerts();
       if (sym === current) renderSignal(sig, true);
     }
-    history.unshift({ ...sig, at: Date.now() });
-    if (history.length > 40) history.pop();
-    localStorage.setItem("bongly_history", JSON.stringify(history));
-    renderHistory();
+    renderBoard();
+    renderSignalStats();
   }, 15000);
-
-  function renderHistory() {
-    const wrap = $("#historyTable");
-    if (!history.length) { wrap.innerHTML = `<div class="empty"><div class="ic">🕘</div>No signals yet — run an analysis.</div>`; return; }
-    wrap.innerHTML = `<table><thead><tr><th>Time</th><th>Symbol</th><th>Signal</th><th>Price</th><th>Confidence</th></tr></thead><tbody>
-      ${history.slice(0, 8).map((h) => `<tr>
-        <td class="muted tiny">${BL.timeAgo(h.at)}</td>
-        <td><div class="pair-cell"><span class="pair-ico">${h.symbol.split("/")[0].slice(0, 4)}</span><b>${h.symbol}</b></div></td>
-        <td><span class="badge ${h.action.includes("BUY") ? "badge-green" : h.action.includes("SELL") ? "badge-red" : "badge-amber"}">${h.action}</span></td>
-        <td class="mono">${BL.fmt(h.price, dec(h.symbol))}</td>
-        <td><div class="flex items-center gap-8"><div class="bar" style="width:60px;height:5px;border-radius:99px;background:var(--bg);overflow:hidden;border:1px solid var(--line-soft)"><div style="width:${h.confidence}%;height:100%;background:var(--grad)"></div></div><b class="mono tiny">${h.confidence}%</b></div></td>
-      </tr>`).join("")}
-    </tbody></table>`;
-  }
 
   /* ---------------- trade panel ---------------- */
   let side = "buy";
@@ -491,14 +557,15 @@
   function renderAll() {
     renderChart();
     renderOrderSummary();
-    renderSignal(BL.analyze(visibleSeries(), current), false);
+    renderSignal(BL.buildSignal(current, visibleSeries(), timeframe, me.id), false);
   }
   renderAll();
   renderPositions();
+  renderBoard();
+  renderSignalStats();
   renderStats();
   renderAlerts();
   renderNews();
-  renderHistory();
   persistSettings();
 
   // nudge the AI to produce a first live signal shortly after load

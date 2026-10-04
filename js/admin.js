@@ -43,6 +43,24 @@
     const thisMonth = users.filter((u) => u.created && u.created.slice(0, 7) === new Date().toISOString().slice(0, 7)).length;
     $("#statUsersSub").textContent = `+${thisMonth} this month`;
 
+    // AI signal performance
+    const sig = BL.signalStats(null);
+    $("#statSignals").textContent = sig.total;
+    $("#statSignalsSub").textContent = `${sig.active} live · avg ${sig.avgConf}% conf.`;
+    $("#statSigWin").textContent = sig.winRate == null ? "—" : sig.winRate + "%";
+    $("#statSigWin").className = sig.winRate == null ? "" : sig.winRate >= 50 ? "up" : "down";
+    $("#statSigWinSub").textContent = sig.resolved ? `${sig.won} won / ${sig.lost} lost of ${sig.resolved}` : "no closed signals yet";
+    $("#perfTable").innerHTML = sig.bySymbol.length
+      ? `<table><thead><tr><th>Symbol</th><th>Signals</th><th>Closed</th><th>Won</th><th>Win rate</th><th>Avg confidence</th></tr></thead><tbody>
+        ${sig.bySymbol.map((r) => `<tr>
+          <td><div class="pair-cell"><span class="pair-ico">${r.symbol.split("/")[0].slice(0, 4)}</span><b>${r.symbol}</b></div></td>
+          <td class="mono">${r.n}</td><td class="mono">${r.resolved}</td><td class="mono up">${r.won}</td>
+          <td>${r.winRate == null ? '<span class="muted tiny">pending</span>' : `<div class="flex items-center gap-8"><div style="width:80px;height:5px;border-radius:99px;background:var(--bg);overflow:hidden;border:1px solid var(--line-soft)"><div style="width:${r.winRate}%;height:100%;background:var(--grad)"></div></div><b class="mono tiny">${r.winRate}%</b></div>`}</td>
+          <td class="mono tiny muted">${sig.avgConf}%</td>
+        </tr>`).join("")}
+        </tbody></table>`
+      : `<div class="empty"><div class="ic">🤖</div>No AI signals generated yet.</div>`;
+
     // plans table
     const plans = {};
     users.forEach((u) => {

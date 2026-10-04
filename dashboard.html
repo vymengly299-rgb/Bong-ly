@@ -16,6 +16,7 @@
     <div class="side-label">Trading</div>
     <a href="#sec-overview" class="side-link active"><span class="ic">▦</span> Overview</a>
     <a href="#sec-signal" class="side-link"><span class="ic">🤖</span> AI Signals</a>
+    <a href="#sec-board" class="side-link"><span class="ic">🗂️</span> Signal board</a>
     <a href="#sec-chart" class="side-link"><span class="ic">📈</span> Chart</a>
     <a href="#sec-trade" class="side-link"><span class="ic">⚡</span> Trade</a>
     <a href="#sec-news" class="side-link"><span class="ic">📰</span> News</a>
@@ -67,7 +68,7 @@
       <div class="stat-grid">
         <div class="stat"><span class="ic">💰</span><span>Account balance</span><b id="statBalance">$0.00</b><small class="up" id="statBalanceChg">+0.00%</small></div>
         <div class="stat"><span class="ic">📊</span><span>Unrealised P&amp;L</span><b id="statPnl">$0.00</b><small class="muted" id="statPnlSub">across 0 positions</small></div>
-        <div class="stat"><span class="ic">🎯</span><span>AI win rate</span><b>72.4%</b><small class="up">▲ 118 signals / 30d</small></div>
+        <div class="stat"><span class="ic">🎯</span><span>AI win rate</span><b id="statWinRate">—</b><small class="muted" id="statWinSub">tracking live signals</small></div>
         <div class="stat"><span class="ic">🔔</span><span>Alerts sent</span><b id="statAlerts">0</b><small class="muted">push + sound + vibrate</small></div>
       </div>
 
@@ -116,8 +117,11 @@
           <!-- AI SIGNAL -->
           <section class="card ai-panel" id="sec-signal">
             <div class="panel-head">
-              <div class="panel-title"><span class="ic">🤖</span> AI signal engine</div>
-              <button class="btn btn-primary btn-sm" id="analyzeBtn">🤖 Analyse <span id="analyzeSymbol">BTC/USDT</span></button>
+              <div class="panel-title"><span class="ic">🤖</span> AI signal structure</div>
+              <div class="flex gap-8 items-center">
+                <span class="badge badge-muted mono" id="sigModel">BongLy-AI v2.4</span>
+                <button class="btn btn-primary btn-sm" id="analyzeBtn">🤖 Analyse <span id="analyzeSymbol">BTC/USDT</span></button>
+              </div>
             </div>
             <div class="panel-body">
               <div class="ai-verdict hold" id="verdictBox">
@@ -125,6 +129,12 @@
                 <div class="grow">
                   <b id="verdictAction">HOLD</b>
                   <p id="verdictNote">Run an analysis to generate a signal.</p>
+                  <div class="flex gap-8 mt-16" style="flex-wrap:wrap">
+                    <span class="badge badge-muted" id="sigTf">1H</span>
+                    <span class="badge badge-muted" id="sigStrength">neutral</span>
+                    <span class="badge badge-muted" id="sigScore">score —</span>
+                    <span class="badge badge-muted" id="sigStatus">watching</span>
+                  </div>
                 </div>
                 <div class="center">
                   <div class="tiny muted">confidence</div>
@@ -132,6 +142,17 @@
                 </div>
               </div>
               <div class="conf-bar"><div id="confFill"></div></div>
+
+              <!-- trade plan levels -->
+              <div class="levels-grid" id="levelsGrid">
+                <div class="level"><span class="tiny muted">Entry zone</span><b class="mono" id="lvEntry">—</b></div>
+                <div class="level stop"><span class="tiny muted">Stop loss</span><b class="mono down" id="lvStop">—</b></div>
+                <div class="level"><span class="tiny muted">Take profit 1</span><b class="mono up" id="lvT1">—</b></div>
+                <div class="level"><span class="tiny muted">Take profit 2</span><b class="mono up" id="lvT2">—</b></div>
+                <div class="level"><span class="tiny muted">Take profit 3</span><b class="mono up" id="lvT3">—</b></div>
+                <div class="level rr"><span class="tiny muted">Risk : reward</span><b class="mono" id="lvRr">—</b></div>
+              </div>
+
               <div class="ind-list" id="indList"></div>
               <div class="flex gap-8 mt-16" style="flex-wrap:wrap">
                 <button class="btn btn-buy btn-sm" id="takeSignalBtn">⚡ Take this signal</button>
@@ -190,13 +211,18 @@
             <div class="table-wrap" id="posTableWrap"></div>
           </section>
 
-          <!-- SIGNAL HISTORY -->
-          <section class="card">
+          <!-- SIGNAL BOARD -->
+          <section class="card" id="sec-board">
             <div class="panel-head">
-              <div class="panel-title"><span class="ic">🕘</span> Signal history</div>
-              <span class="tiny muted">latest 8</span>
+              <div class="panel-title"><span class="ic">🗂️</span> AI signal board</div>
+              <div class="seg" id="boardFilter">
+                <button data-f="live" class="active">Live</button>
+                <button data-f="all">All</button>
+                <button data-f="tp2">Won</button>
+                <button data-f="stopped">Lost</button>
+              </div>
             </div>
-            <div class="table-wrap" id="historyTable"></div>
+            <div class="table-wrap" id="boardTable"></div>
           </section>
         </div>
 

@@ -17,6 +17,7 @@
     <a href="#sec-overview" class="side-link active"><span class="ic">▦</span> Overview</a>
     <a href="#sec-users" class="side-link"><span class="ic">👥</span> Users</a>
     <a href="#sec-create" class="side-link"><span class="ic">➕</span> Create user</a>
+    <a href="#sec-perf" class="side-link"><span class="ic">🤖</span> Signal performance</a>
     <a href="#sec-plans" class="side-link"><span class="ic">💳</span> Subscriptions</a>
     <a href="#sec-logs" class="side-link"><span class="ic">🧾</span> Activity log</a>
     <div class="side-label">Platform</div>
@@ -59,11 +60,13 @@
       </div>
 
       <!-- STATS -->
-      <div class="stat-grid">
+      <div class="stat-grid auto">
         <div class="stat"><span class="ic">👥</span><span>Total users</span><b id="statUsers">0</b><small class="up" id="statUsersSub">+0 this month</small></div>
         <div class="stat"><span class="ic">✅</span><span>Active accounts</span><b id="statActive">0</b><small class="muted" id="statSusp">0 suspended</small></div>
         <div class="stat"><span class="ic">🔔</span><span>Alerts delivered</span><b id="statAlerts">0</b><small class="muted">push · sound · vibrate</small></div>
         <div class="stat"><span class="ic">💰</span><span>Platform MRR</span><b id="statMrr">$0</b><small class="up">recurring revenue</small></div>
+        <div class="stat"><span class="ic">🤖</span><span>AI signals</span><b id="statSignals">0</b><small class="muted" id="statSignalsSub">0 live</small></div>
+        <div class="stat"><span class="ic">🎯</span><span>Signal win rate</span><b id="statSigWin">—</b><small class="muted" id="statSigWinSub">no closed signals yet</small></div>
       </div>
 
       <div class="dash-grid">
@@ -117,6 +120,15 @@
                 </div>
               </form>
             </div>
+          </section>
+
+          <!-- SIGNAL PERFORMANCE -->
+          <section class="card" id="sec-perf">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ic">🤖</span> AI signal performance</div>
+              <span class="tiny muted">entry · stop · 3 targets · R:R tracked live</span>
+            </div>
+            <div class="table-wrap" id="perfTable"></div>
           </section>
 
           <!-- PLANS -->

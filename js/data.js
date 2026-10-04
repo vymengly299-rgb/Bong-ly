@@ -477,11 +477,124 @@
     };
   }
 
+  /* ============================================================
+     SIGNAL STRUCTURE — a full trade plan, not just a direction
+     { id, uid, symbol, tf, action, strength, dir, score, confidence,
+       entry, entryLow, entryHigh, stop, targets[3], rr,
+       indicators[], note, createdAt, status, pnl }
+     status: watching -> active -> tp1 -> tp2 (won) | stopped (lost)
+     ============================================================ */
+  const pd = (sym) => (MARKETS.find((m) => m.sym === sym) || { price: 100 }).price < 10 ? 5 : 2;
+
+  function buildSignal(symbol, data, tf, uid) {
+    const a = analyze(data, symbol);
+    const last = data[data.length - 1];
+    const px = last.c;
+    // volatility unit = mean candle range over the last 14 bars
+    const atr = (data.slice(-14).reduce((s, d) => s + (d.h - d.l), 0) / 14) || px * 0.004;
+    const buy = a.action.includes("BUY");
+    const sell = a.action.includes("SELL");
+    const dir = buy ? 1 : sell ? -1 : 0;
+    const r2 = (n) => +n.toFixed(pd(symbol));
+
+    const sig = {
+      id: "sig_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      uid: uid || null,
+      symbol,
+      tf: tf || "1H",
+      action: a.action,
+      strength: a.action.startsWith("STRONG") ? "strong" : dir === 0 ? "neutral" : "moderate",
+      dir,
+      score: a.score,
+      confidence: a.confidence,
+      note: a.note,
+      price: px,
+      indicators: a.indicators,
+      createdAt: Date.now(),
+      status: dir === 0 ? "watching" : "active",
+      pnl: 0,
+      entry: r2(px - dir * atr * 0.1),
+      entryLow: r2(px - dir * atr * 0.45),
+      entryHigh: r2(px + dir * atr * 0.15),
+      stop: r2(px - dir * atr * 1.7),
+      targets: [1.4, 2.8, 4.2].map((m) => r2(px + dir * atr * m)),
+      rr: 0,
+      model: "BongLy-AI v2.4",
+    };
+    sig.rr = +(((Math.abs(sig.targets[1] - sig.entry) / Math.abs(sig.entry - sig.stop)) || 0).toFixed(2));
+    if (dir === 0) { sig.stop = null; sig.targets = []; sig.rr = 0; }
+    return sig;
+  }
+
+  /* ---------------- signal store ---------------- */
+  const SIG_KEY = "bongly_signals";
+  function getSignals() { return read(SIG_KEY, []); }
+  function saveSignals(list) { write(SIG_KEY, list); }
+  function addSignal(sig) {
+    const list = getSignals();
+    // one live plan per symbol+user: refresh it in place
+    const same = list.findIndex(
+      (s) => s.symbol === sig.symbol && s.uid === sig.uid && (s.status === "active" || s.status === "watching" || s.status === "tp1")
+    );
+    if (same > -1) list.splice(same, 1);
+    list.unshift(sig);
+    saveSignals(list.slice(0, 80));
+    return sig;
+  }
+
+  /* Resolve live plans against current prices (called on every price tick) */
+  function resolveSignals(priceMap) {
+    const list = getSignals();
+    let dirty = false;
+    list.forEach((s) => {
+      if (s.status !== "active" && s.status !== "tp1") return;
+      const p = priceMap[s.symbol];
+      if (p == null) return;
+      s.pnl = +(((p - s.entry) * s.dir) / s.entry * 100).toFixed(2);
+      if (s.dir > 0 ? p <= s.stop : p >= s.stop) { s.status = "stopped"; dirty = true; }
+      else if (s.dir > 0 ? p >= s.targets[2] : p <= s.targets[2]) { s.status = "tp2"; dirty = true; }
+      else if (s.dir > 0 ? p >= s.targets[0] : p <= s.targets[0]) { s.status = "tp1"; dirty = true; }
+    });
+    if (dirty) saveSignals(list);
+    return list;
+  }
+
+  function signalStats(uid) {
+    const mine = getSignals().filter((s) => !uid || s.uid === uid);
+    const resolved = mine.filter((s) => s.status === "tp1" || s.status === "tp2" || s.status === "stopped");
+    const won = resolved.filter((s) => s.status === "tp1" || s.status === "tp2");
+    const active = mine.filter((s) => s.status === "active" || s.status === "tp1");
+    return {
+      total: mine.length,
+      resolved: resolved.length,
+      won: won.length,
+      lost: resolved.length - won.length,
+      active: active.length,
+      winRate: resolved.length ? Math.round((won.length / resolved.length) * 1000) / 10 : null,
+      avgConf: mine.length ? Math.round(mine.reduce((a, s) => a + s.confidence, 0) / mine.length) : 0,
+      bySymbol: MARKETS.map((m) => {
+        const arr = mine.filter((s) => s.symbol === m.sym);
+        const res = arr.filter((s) => s.status === "tp1" || s.status === "tp2" || s.status === "stopped");
+        const w = res.filter((s) => s.status !== "stopped").length;
+        return { symbol: m.sym, n: arr.length, resolved: res.length, won: w, winRate: res.length ? Math.round((w / res.length) * 100) : null };
+      }).filter((x) => x.n),
+    };
+  }
+
+  const STATUS_META = {
+    watching: { label: "Watching", cls: "badge-muted", icon: "👀" },
+    active: { label: "Active", cls: "badge-blue", icon: "🔄" },
+    tp1: { label: "TP1 hit", cls: "badge-green", icon: "✅" },
+    tp2: { label: "Target hit", cls: "badge-green", icon: "🏆" },
+    stopped: { label: "Stopped out", cls: "badge-red", icon: "🛑" },
+  };
+
   /* ---------------- Expose ---------------- */
   window.BL = {
     LS, MARKETS, NEWS, genSeries, getUsers, saveUsers, getSession, setSession, clearSession,
     findUser, getUserById, requireAuth, getSettings, saveSettings, getAlerts, pushAlert,
     getLogs, addLog, fmt, money, pct, timeAgo, clock, dateStr, esc, toast, Chart,
-    analyze, firePhoneAlert, askPushPermission, beep, systemNotify,
+    analyze, buildSignal, getSignals, saveSignals, addSignal, resolveSignals, signalStats,
+    STATUS_META, pd, firePhoneAlert, askPushPermission, beep, systemNotify,
   };
 })();
